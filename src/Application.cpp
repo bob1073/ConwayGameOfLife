@@ -3,7 +3,8 @@
 
 Application::Application()
     :
-    window(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life")
+    window(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life"),
+    board(50, 50)
 {
     
 }
@@ -33,7 +34,7 @@ void Application::Render()
 {
     window.clear();
     // Render things here
-
+    board.Render(window);
     //
     window.display();
 }

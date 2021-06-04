@@ -21,9 +21,15 @@
     <ClCompile Include="src\Application.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="src\Board.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Board.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
