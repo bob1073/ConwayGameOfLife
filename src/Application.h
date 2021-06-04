@@ -28,5 +28,8 @@ private:
 
 	// User variables here
 	Board board;
+	bool start = false;
+	float timer = 0.0f;
+	static constexpr float delay = 0.5f;
 	//
 };

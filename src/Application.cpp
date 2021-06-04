@@ -4,7 +4,7 @@
 Application::Application()
     :
     window(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life"),
-    board(50, 50)
+    board(25, 25)
 {
     
 }
@@ -26,8 +26,25 @@ void Application::Update()
 {
     const float dt = dtClock.restart().asSeconds();
 
+    if (!start)
+    {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+        {
+            start = true;
+        }
+    }
 
-       
+    else
+    {
+        timer += dt;
+
+        if (timer >= delay)
+        {
+            board.Update(dt);
+            timer = 0.0f;
+        }
+
+    }
 }
 
 void Application::Render()

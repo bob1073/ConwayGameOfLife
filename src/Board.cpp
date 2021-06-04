@@ -21,12 +21,30 @@ void Board::Cell::Kill()
 	isAlive = false;
 }
 
-int Board::Cell::CountAliveNeighbors(const std::vector<Cell>& cells) const
+int Board::Cell::CountAliveNeighbors(const std::vector<std::vector<Cell>>& cells, int boardWidth, int boardHeight) const
 {
 	const sf::Vector2f pos = cell.getPosition();
+	const sf::Vector2i indexPos = sf::Vector2i(pos / size);
+	int n = 0;
 
-	
-	return 0;
+	for (int i = indexPos.x - 1; i <= indexPos.x + 1; ++i)
+	{
+		for (int j = indexPos.y - 1; j <= indexPos.y + 1; ++j)
+		{
+			if (i != indexPos.x || j != indexPos.y)
+			{
+				if (i >= 0 && i < boardWidth && j >= 0 && j < boardHeight)
+				{
+					if (cells[i][j].IsAlive())
+					{
+						n++;
+					}
+				}
+			}
+		}
+	}
+
+	return n;
 }
 
 void Board::Cell::Render(sf::RenderTarget& target)
@@ -37,14 +55,28 @@ void Board::Cell::Render(sf::RenderTarget& target)
 	}
 }
 
-void Board::Cell::Update(float dt)
+void Board::Cell::Update(const std::vector<std::vector<Cell>>& cells, int boardWidth, int boardHeight)
 {
-	
+	const int numNeighbors = CountAliveNeighbors(cells, boardWidth, boardHeight);
+	if (isAlive)
+	{
+		if (numNeighbors != 2 && numNeighbors != 3)
+		{
+			isAlive = false;
+		}
+	}
+	else
+	{
+		if (numNeighbors == 3)
+		{
+			isAlive = true;
+		}
+	}
 }
 
 Board::Board(int width, int height)
 	:
-	cells(width*height),
+	cells(width, std::vector<Cell>(height, Cell())),
 	width(width),
 	height(height)
 {
@@ -54,7 +86,7 @@ Board::Board(int width, int height)
 	{
 		for (int j = 0; j < height; ++j)
 		{
-			cells.emplace_back(sf::Vector2f(i * cellSize , j * cellSize), false);
+			cells[i][j] = Cell(sf::Vector2f(i * cellSize , j * cellSize), (i + j) % 2);
 		}
 	}
 }
@@ -63,10 +95,20 @@ void Board::Render(sf::RenderTarget& target)
 {
 	for (auto& cell : cells)
 	{
-		cell.Render(target);
+		for (auto& cel : cell)
+		{
+			cel.Render(target);
+		}
 	}
 }
 
 void Board::Update(float dt)
 {
+	for (auto& cell : cells)
+	{
+		for (auto& cel : cell)
+		{
+			cel.Update(cells, width, height);
+		}
+	}
 }

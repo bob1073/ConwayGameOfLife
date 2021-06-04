@@ -24,9 +24,9 @@ private:
 		// Functions
 		void Revive();
 		void Kill();
-		int CountAliveNeighbors(const std::vector<Cell>& cells) const;
+		int CountAliveNeighbors(const std::vector<std::vector<Cell>>& cells, int boardWidth, int boardHeight) const;
 		void Render(sf::RenderTarget& target);
-		void Update(float dt);
+		void Update(const std::vector<std::vector<Cell>>& cells, int boardWidth, int boardHeight);
 
 		// Getters
 		bool IsAlive() const { return isAlive; }
@@ -40,7 +40,7 @@ private:
 	};
 
 private:
-	std::vector<Cell> cells;
+	std::vector < std::vector< Cell> > cells;
 	int width;
 	int height;
 };
