@@ -25,26 +25,28 @@ void Application::UpdateEvents()
 void Application::Update()
 {
     const float dt = dtClock.restart().asSeconds();
+    const sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+    {
+        start = true;
+    }
 
     if (!start)
     {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-        {
-            start = true;
-        }
+        board.Update(mousePos, start);
     }
-
     else
     {
         timer += dt;
 
         if (timer >= delay)
         {
-            board.Update(dt);
+            board.Update(mousePos, start);
             timer = 0.0f;
         }
-
     }
+    
 }
 
 void Application::Render()
