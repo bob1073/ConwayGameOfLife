@@ -34,7 +34,7 @@ void Application::Update()
 
     if (!start)
     {
-        board.Update(mousePos, start);
+        board.UpdateInput(mousePos);
     }
     else
     {
@@ -42,7 +42,7 @@ void Application::Update()
 
         if (timer >= delay)
         {
-            board.Update(mousePos, start);
+            board.Update();
             timer = 0.0f;
         }
     }

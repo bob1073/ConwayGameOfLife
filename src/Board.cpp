@@ -55,33 +55,22 @@ void Board::Cell::Render(sf::RenderTarget& target)
 	}
 }
 
-void Board::Cell::Update(std::vector<std::vector<Cell>>& cells, const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight, const sf::Vector2i& mousePos, bool started)
+void Board::Cell::Update(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight)
 {
-	if (started)
+	const int numNeighbors = CountAliveNeighbors(lifeCells, boardWidth, boardHeight);
+	if (isAlive)
 	{
-		const int numNeighbors = CountAliveNeighbors(lifeCells, boardWidth, boardHeight);
-		if (isAlive)
+		if (numNeighbors != 2 && numNeighbors != 3)
 		{
-			if (numNeighbors != 2 && numNeighbors != 3)
-			{
-				isAlive = false;
-			}
-		}
-		else
-		{
-			if (numNeighbors == 3)
-			{
-				isAlive = true;
-			}
+			isAlive = false;
 		}
 	}
 	else
 	{
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		if (numNeighbors == 3)
 		{
-			cells[mousePos.x / size][mousePos.y / size].Revive();
+			isAlive = true;
 		}
-		
 	}
 }
 
@@ -114,16 +103,36 @@ void Board::Render(sf::RenderTarget& target)
 	}
 }
 
-void Board::Update(const sf::Vector2i& mousePos, bool started)
+void Board::Update()
 {
 	CopyState();
 	for (auto& cell : cells)
 	{
 		for (auto& cel : cell)
 		{
-			cel.Update(cells, lifeCells, width, height, mousePos, started);
+			cel.Update(lifeCells, width, height);
 		}
 	}
+}
+
+void Board::UpdateInput(const sf::Vector2i& mousePos)
+{
+	const sf::FloatRect boardBounds = sf::FloatRect(0.0f, 0.0f, width * Cell::GetSize(), height * Cell::GetSize());
+	const sf::Vector2i gridPos = sf::Vector2i(mousePos.x / Cell::GetSize(), mousePos.y / Cell::GetSize());
+
+	if (boardBounds.contains(static_cast<sf::Vector2f>(mousePos)))
+	{
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			cells[gridPos.x][gridPos.y].Revive();
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		{
+			cells[gridPos.x][gridPos.y].Kill();
+		}
+	}
+	
 }
 
 void Board::CopyState()

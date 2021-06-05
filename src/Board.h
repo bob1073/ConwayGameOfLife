@@ -11,7 +11,8 @@ public:
 
 	// Functions
 	void Render(sf::RenderTarget& target);
-	void Update(const sf::Vector2i& mousePos, bool started);
+	void Update();
+	void UpdateInput(const sf::Vector2i& mousePos);
 
 private:
 	class Cell
@@ -26,7 +27,7 @@ private:
 		void Kill();
 		int CountAliveNeighbors(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight) const;
 		void Render(sf::RenderTarget& target);
-		void Update(std::vector<std::vector<Cell>>& cells, const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight, const sf::Vector2i& mousePos, bool started);
+		void Update(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight);
 
 		// Getters
 		bool IsAlive() const { return isAlive; }
