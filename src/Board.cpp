@@ -1,7 +1,9 @@
 #include "Board.h"
+#include <random>
 
-Board::Cell::Cell(const sf::Vector2f& pos, bool isAlive)
+Board::Cell::Cell(const sf::Vector2f& pos, float size, bool isAlive)
 	:
+	size(size),
 	isAlive(isAlive)
 {
 	cell.setPosition(pos);
@@ -74,22 +76,40 @@ void Board::Cell::Update(const std::vector < std::vector<bool > >& lifeCells, in
 	}
 }
 
-Board::Board(int width, int height)
+Board::Board(float cellSize, int width, int height, bool randomGenerated)
 	:
-	cells(width, std::vector<Cell>(height, Cell())),
-	lifeCells(width, std::vector<bool>(height, false)),
+	cellSize(cellSize),
 	width(width),
-	height(height)
+	height(height),
+	cells(width, std::vector<Cell>(height, Cell())),
+	lifeCells(width, std::vector<bool>(height, false))
 {
-	const float cellSize = Cell::GetSize();
-
-	for (int i = 0; i < width; ++i)
+	if (randomGenerated)
 	{
-		for (int j = 0; j < height; ++j)
+		std::random_device rd;
+		std::mt19937 random(rd());
+		std::uniform_int_distribution<int> randomizer(0, 1);
+
+		for (int i = 0; i < width; ++i)
 		{
-			cells[i][j] = Cell(sf::Vector2f(i * cellSize , j * cellSize), false);
+			for (int j = 0; j < height; ++j)
+			{
+				const int val = randomizer(random);
+				cells[i][j] = Cell(sf::Vector2f(i * cellSize, j * cellSize), cellSize, val);
+			}
 		}
 	}
+	else
+	{
+		for (int i = 0; i < width; ++i)
+		{
+			for (int j = 0; j < height; ++j)
+			{
+				cells[i][j] = Cell(sf::Vector2f(i * cellSize, j * cellSize), cellSize, false);
+			}
+		}
+	}
+	
 }
 
 void Board::Render(sf::RenderTarget& target)
@@ -117,8 +137,8 @@ void Board::Update()
 
 void Board::UpdateInput(const sf::Vector2i& mousePos)
 {
-	const sf::FloatRect boardBounds = sf::FloatRect(0.0f, 0.0f, width * Cell::GetSize(), height * Cell::GetSize());
-	const sf::Vector2i gridPos = sf::Vector2i(mousePos.x / Cell::GetSize(), mousePos.y / Cell::GetSize());
+	const sf::FloatRect boardBounds = sf::FloatRect(0.0f, 0.0f, width * cellSize, height * cellSize);
+	const sf::Vector2i gridPos = sf::Vector2i(int(mousePos.x / cellSize), int(mousePos.y / cellSize));
 
 	if (boardBounds.contains(static_cast<sf::Vector2f>(mousePos)))
 	{

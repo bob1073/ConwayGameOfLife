@@ -6,8 +6,9 @@
 class Board
 {
 public:
-	// Constructor
-	Board(int width, int height);
+	// Constructors
+	Board() = default;
+	Board(float cellSize, int width, int height, bool randomGenerated);
 
 	// Functions
 	void Render(sf::RenderTarget& target);
@@ -18,9 +19,9 @@ private:
 	class Cell
 	{
 	public:
-		// Constructor
+		// Constructors
 		Cell() = default;
-		Cell(const sf::Vector2f& pos, bool isAlive);
+		Cell(const sf::Vector2f& pos, float size, bool isAlive);
 
 		// Functions
 		void Revive();
@@ -31,18 +32,18 @@ private:
 
 		// Getters
 		bool IsAlive() const { return isAlive; }
-		static float GetSize() { return size; }
 
 	private:
 		sf::RectangleShape cell;
 		bool isAlive = false;
 
-		static constexpr float size = 20.0f;
+		float size;
 	};
 
 private:
 	std::vector < std::vector< Cell> > cells;
 	std::vector < std::vector<bool > > lifeCells;
+	float cellSize;
 	int width;
 	int height;
 

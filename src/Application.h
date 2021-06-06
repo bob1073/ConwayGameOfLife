@@ -17,19 +17,29 @@ public:
 
 	//
 private:
-	sf::RenderWindow window;
+	sf::RenderWindow* window;
 	sf::Event e;
 
 	bool running = true;
 	sf::Clock dtClock;
 
-	static constexpr int screenWidth = 800;
-	static constexpr int screenHeight = 600;
+	int screenWidth;
+	int screenHeight;
 
 	// User variables here
-	Board board;
+	struct Settings
+	{
+		float cellSize;
+		int boardWidth;
+		int boardHeight;
+		bool randomGenerated;
+		float timeStep;
+	};
+
+	Settings settings;
+	Board* board;
 	bool start = false;
 	float timer = 0.0f;
-	static constexpr float delay = 0.5f;
+	static constexpr float delay = 0.1f;
 	//
 };
