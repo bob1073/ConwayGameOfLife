@@ -15,7 +15,11 @@ public:
 	bool IsRunning() const;
 	// User functions here
 
+private:
+	void LoadSettings();
 	//
+
+
 private:
 	sf::RenderWindow* window;
 	sf::Event e;
@@ -38,8 +42,10 @@ private:
 
 	Settings settings;
 	Board* board;
+	sf::Font font;
+	sf::Text infoText;
 	bool start = false;
 	float timer = 0.0f;
-	static constexpr float delay = 0.1f;
+	int generation = 0;
 	//
 };

@@ -8,12 +8,22 @@ class Board
 public:
 	// Constructors
 	Board() = default;
-	Board(float cellSize, int width, int height, bool randomGenerated);
+	Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated);
 
 	// Functions
 	void Render(sf::RenderTarget& target);
 	void Update();
 	void UpdateInput(const sf::Vector2i& mousePos);
+
+	// Getters
+	const std::vector < std::vector < bool > >& GetLifeCells() const { return lifeCells; }
+	const sf::Vector2f GetPosition() const { return pos; }
+	const int GetWidth() const { return width; }
+	const int GetHeight() const { return width; }
+
+private:
+	// Functions
+	void CopyState();
 
 private:
 	class Cell
@@ -26,9 +36,9 @@ private:
 		// Functions
 		void Revive();
 		void Kill();
-		int CountAliveNeighbors(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight) const;
+		int CountAliveNeighbors(const Board& board) const;
 		void Render(sf::RenderTarget& target);
-		void Update(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight);
+		void Update(const Board& board);
 
 		// Getters
 		bool IsAlive() const { return isAlive; }
@@ -41,13 +51,20 @@ private:
 	};
 
 private:
+	// Border
+	sf::RectangleShape border;
+
+	// Board
 	std::vector < std::vector< Cell> > cells;
-	std::vector < std::vector<bool > > lifeCells;
+	sf::Vector2f pos;
 	float cellSize;
 	int width;
 	int height;
 
-	// Private functions
-	void CopyState();
+	// Logic
+	std::vector < std::vector<bool > > lifeCells;
+
+	// Constants
+	static constexpr float borderSize = 2.0f;
 };
 

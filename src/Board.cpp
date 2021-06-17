@@ -23,10 +23,12 @@ void Board::Cell::Kill()
 	isAlive = false;
 }
 
-int Board::Cell::CountAliveNeighbors(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight) const
+int Board::Cell::CountAliveNeighbors(const Board& board) const
 {
 	const sf::Vector2f pos = cell.getPosition();
-	const sf::Vector2i indexPos = sf::Vector2i(pos / size);
+	const sf::Vector2i indexPos = static_cast<sf::Vector2i>((pos - board.GetPosition()) / size);
+	const int boardWidth = board.GetWidth();
+	const int boardHeight = board.GetHeight();
 	int n = 0;
 
 	for (int i = indexPos.x - 1; i <= indexPos.x + 1; ++i)
@@ -37,7 +39,7 @@ int Board::Cell::CountAliveNeighbors(const std::vector < std::vector<bool > >& l
 			{
 				if (i >= 0 && i < boardWidth && j >= 0 && j < boardHeight)
 				{
-					if (lifeCells[i][j] == true)
+					if (board.lifeCells[i][j] == true)
 					{
 						n++;
 					}
@@ -57,9 +59,9 @@ void Board::Cell::Render(sf::RenderTarget& target)
 	}
 }
 
-void Board::Cell::Update(const std::vector < std::vector<bool > >& lifeCells, int boardWidth, int boardHeight)
+void Board::Cell::Update(const Board& board)
 {
-	const int numNeighbors = CountAliveNeighbors(lifeCells, boardWidth, boardHeight);
+	const int numNeighbors = CountAliveNeighbors(board);
 	if (isAlive)
 	{
 		if (numNeighbors != 2 && numNeighbors != 3)
@@ -76,14 +78,22 @@ void Board::Cell::Update(const std::vector < std::vector<bool > >& lifeCells, in
 	}
 }
 
-Board::Board(float cellSize, int width, int height, bool randomGenerated)
+Board::Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated)
 	:
+	pos(pos),
 	cellSize(cellSize),
 	width(width),
 	height(height),
 	cells(width, std::vector<Cell>(height, Cell())),
 	lifeCells(width, std::vector<bool>(height, false))
 {
+
+	border.setPosition(pos);
+	border.setSize(sf::Vector2f(cellSize * width, cellSize * height));
+	border.setFillColor(sf::Color::Transparent);
+	border.setOutlineThickness(borderSize);
+	border.setOutlineColor(sf::Color(120, 120, 120));
+
 	if (randomGenerated)
 	{
 		std::random_device rd;
@@ -95,7 +105,7 @@ Board::Board(float cellSize, int width, int height, bool randomGenerated)
 			for (int j = 0; j < height; ++j)
 			{
 				const int val = randomizer(random);
-				cells[i][j] = Cell(sf::Vector2f(i * cellSize, j * cellSize), cellSize, val);
+				cells[i][j] = Cell(sf::Vector2f(pos.x + i * cellSize, pos.y + j * cellSize), cellSize, val);
 			}
 		}
 	}
@@ -105,7 +115,7 @@ Board::Board(float cellSize, int width, int height, bool randomGenerated)
 		{
 			for (int j = 0; j < height; ++j)
 			{
-				cells[i][j] = Cell(sf::Vector2f(i * cellSize, j * cellSize), cellSize, false);
+				cells[i][j] = Cell(sf::Vector2f(pos.x + i * cellSize, pos.y + j * cellSize), cellSize, false);
 			}
 		}
 	}
@@ -114,6 +124,8 @@ Board::Board(float cellSize, int width, int height, bool randomGenerated)
 
 void Board::Render(sf::RenderTarget& target)
 {
+	target.draw(border);
+
 	for (auto& cell : cells)
 	{
 		for (auto& cel : cell)
@@ -130,7 +142,7 @@ void Board::Update()
 	{
 		for (auto& cel : cell)
 		{
-			cel.Update(lifeCells, width, height);
+			cel.Update(*this);
 		}
 	}
 }
@@ -138,7 +150,7 @@ void Board::Update()
 void Board::UpdateInput(const sf::Vector2i& mousePos)
 {
 	const sf::FloatRect boardBounds = sf::FloatRect(0.0f, 0.0f, width * cellSize, height * cellSize);
-	const sf::Vector2i gridPos = sf::Vector2i(int(mousePos.x / cellSize), int(mousePos.y / cellSize));
+	const sf::Vector2i gridPos = sf::Vector2i(int(mousePos.x - pos.x/ cellSize), int(mousePos.y - pos.y / cellSize));
 
 	if (boardBounds.contains(static_cast<sf::Vector2f>(mousePos)))
 	{

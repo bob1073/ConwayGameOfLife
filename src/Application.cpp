@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <fstream>
+#include <iostream>
 
 Application::Application()
     :
@@ -7,40 +8,29 @@ Application::Application()
     settings()
 {
     // Load settings
-    std::ifstream in("Config/settings.ini");
+    LoadSettings();
 
-    for (std::string s; std::getline(in, s); )
+    // Load font
+    if (!font.loadFromFile("Fonts/Roboto-Light.ttf"))
     {
-        if (s == "# Cell size")
-        {
-            in >> settings.cellSize;
-        }
-        if (s == "# Board width")
-        {
-            in >> settings.boardWidth;
-        }
-        if (s == "# Board height")
-        {
-            in >> settings.boardHeight;
-        }
-        if (s == "# Initial patron random (1 yes, 0 not)")
-        {
-            in >> settings.randomGenerated;
-        }
-        if (s == "# Time step")
-        {
-            in >> settings.timeStep;
-        }
+        sf::err() << "Failed to load font";
     }
 
-    screenWidth = int(settings.cellSize * settings.boardWidth);
-    screenHeight = int(settings.cellSize * settings.boardHeight);
+    // Create board
+    board = new Board({ 25.0f, 25.0f }, settings.cellSize, settings.boardWidth, settings.boardHeight, settings.randomGenerated);
 
     // Create window
+    const float offsetX = settings.cellSize * settings.boardWidth + 50.0f;
+    screenWidth = int(offsetX + 200.0f);
+    screenHeight = int(settings.cellSize * settings.boardHeight + 50.0f);
     window = new sf::RenderWindow(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
 
-    // Create board
-    board = new Board(settings.cellSize, settings.boardWidth, settings.boardHeight, settings.randomGenerated);
+    // Simple UI
+    infoText.setFont(font);
+    infoText.setCharacterSize(30);
+    infoText.setFillColor(sf::Color::White);
+    infoText.setPosition(offsetX + 10.0f, 50.0f);
+    infoText.setString("Generation: \n");
 }
 
 Application::~Application()
@@ -66,6 +56,8 @@ void Application::Update()
     const float dt = dtClock.restart().asSeconds();
     const sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
 
+    infoText.setString("Generation: \n" + std::to_string(generation));
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
     {
         start = true;
@@ -85,6 +77,7 @@ void Application::Update()
         if (timer >= settings.timeStep)
         {
             board->Update();
+            ++generation;
             timer = 0.0f;
         }
     }
@@ -95,6 +88,7 @@ void Application::Render()
     window->clear();
     // Render things here
     board->Render(*window);
+    window->draw(infoText);
     //
     window->display();
 }
@@ -102,4 +96,40 @@ void Application::Render()
 bool Application::IsRunning() const
 {
     return running;
+}
+
+void Application::LoadSettings()
+{
+    std::ifstream in("Config/settings.ini");
+
+    if (!in)
+    {
+        sf::err() << "Failed to load settings.ini";
+    }
+    else
+    {
+        for (std::string s; std::getline(in, s); )
+        {
+            if (s == "# Cell size")
+            {
+                in >> settings.cellSize;
+            }
+            if (s == "# Board width")
+            {
+                in >> settings.boardWidth;
+            }
+            if (s == "# Board height")
+            {
+                in >> settings.boardHeight;
+            }
+            if (s == "# Initial patron random (1 yes, 0 not)")
+            {
+                in >> settings.randomGenerated;
+            }
+            if (s == "# Time step")
+            {
+                in >> settings.timeStep;
+            }
+        }
+    }
 }
