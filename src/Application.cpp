@@ -17,13 +17,13 @@ Application::Application()
     }
 
     // Create board
-    board = new Board({ 25.0f, 25.0f }, settings.cellSize, settings.boardWidth, settings.boardHeight, settings.randomGenerated);
+    board = std::make_unique<Board>(sf::Vector2f(25.0f, 25.0f), settings.cellSize, settings.boardWidth, settings.boardHeight, settings.randomGenerated);
 
     // Create window
     const float offsetX = settings.cellSize * settings.boardWidth + 50.0f;
     screenWidth = int(offsetX + 200.0f);
     screenHeight = int(settings.cellSize * settings.boardHeight + 50.0f);
-    window = new sf::RenderWindow(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
+    window = std::make_unique< sf::RenderWindow>(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
 
     // Simple UI
     infoText.setFont(font);
@@ -31,15 +31,6 @@ Application::Application()
     infoText.setFillColor(sf::Color::White);
     infoText.setPosition(offsetX + 10.0f, 50.0f);
     infoText.setString("Generation: \n");
-}
-
-Application::~Application()
-{
-    delete board;
-    board = nullptr;
-
-    delete window;
-    window = nullptr;
 }
 
 void Application::UpdateEvents()

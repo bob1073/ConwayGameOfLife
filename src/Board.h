@@ -8,6 +8,7 @@ class Board
 public:
 	// Constructors
 	Board() = default;
+	
 	Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated);
 
 	// Functions

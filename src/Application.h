@@ -1,12 +1,12 @@
 #pragma once
 
+#include <memory>
 #include "Board.h"
 
 class Application
 {
 public:
 	Application();
-	~Application();
 
 	void UpdateEvents();
 	void Update();
@@ -21,7 +21,7 @@ private:
 
 
 private:
-	sf::RenderWindow* window;
+	std::unique_ptr<sf::RenderWindow> window;
 	sf::Event e;
 
 	bool running = true;
@@ -41,7 +41,7 @@ private:
 	};
 
 	Settings settings;
-	Board* board;
+	std::unique_ptr<Board> board;
 	sf::Font font;
 	sf::Text infoText;
 	bool start = false;
