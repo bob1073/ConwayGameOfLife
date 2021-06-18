@@ -27,10 +27,10 @@ Application::Application()
 
     // Simple UI
     infoText.setFont(font);
-    infoText.setCharacterSize(30);
+    infoText.setCharacterSize(20);
     infoText.setFillColor(sf::Color::White);
     infoText.setPosition(offsetX + 10.0f, 50.0f);
-    infoText.setString("Generation: \n");
+    infoText.setString("Generation: 0\n\nPopulation: 0");
 }
 
 void Application::UpdateEvents()
@@ -46,8 +46,6 @@ void Application::Update()
 {
     const float dt = dtClock.restart().asSeconds();
     const sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-
-    infoText.setString("Generation: \n" + std::to_string(generation));
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
     {
@@ -71,6 +69,8 @@ void Application::Update()
             ++generation;
             timer = 0.0f;
         }
+
+        infoText.setString("Generation: " + std::to_string(generation) + "\n\nPopulation: " + std::to_string(board->CountAliveCells()));
     }
 }
 

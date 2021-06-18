@@ -15,6 +15,7 @@ public:
 	void Render(sf::RenderTarget& target);
 	void Update();
 	void UpdateInput(const sf::Vector2i& mousePos);
+	int CountAliveCells() const;
 
 	// Getters
 	const std::vector < std::vector < bool > >& GetLifeCells() const { return lifeCells; }

@@ -149,8 +149,8 @@ void Board::Update()
 
 void Board::UpdateInput(const sf::Vector2i& mousePos)
 {
-	const sf::FloatRect boardBounds = sf::FloatRect(0.0f, 0.0f, width * cellSize, height * cellSize);
-	const sf::Vector2i gridPos = sf::Vector2i(int(mousePos.x - pos.x/ cellSize), int(mousePos.y - pos.y / cellSize));
+	const sf::FloatRect boardBounds = sf::FloatRect(25.0f, 25.0f,  width * cellSize, height * cellSize);
+	const sf::Vector2i gridPos = sf::Vector2i(int((mousePos.x - pos.x)/ cellSize), int((mousePos.y - pos.y) / cellSize));
 
 	if (boardBounds.contains(static_cast<sf::Vector2f>(mousePos)))
 	{
@@ -165,6 +165,19 @@ void Board::UpdateInput(const sf::Vector2i& mousePos)
 		}
 	}
 	
+}
+
+int Board::CountAliveCells() const
+{
+	int n = 0;
+	for (auto lCells : lifeCells)
+	{
+		for (auto lc : lCells)
+		{
+			if (lc) n++;
+		}
+	}
+	return n;
 }
 
 void Board::CopyState()
