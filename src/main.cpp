@@ -4,12 +4,12 @@ int main()
 {
     Application app;
 
-    while (app.IsRunning())
+    while (app.isRunning())
     {
         // Frame start
-        app.UpdateEvents();
-        app.Update();
-        app.Render();
+        app.updateEvents();
+        app.update();
+        app.render();
         // Frame end
     }
 

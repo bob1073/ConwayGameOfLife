@@ -12,20 +12,19 @@ public:
 	Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated);
 
 	// Functions
-	void Render(sf::RenderTarget& target);
-	void Update();
-	void UpdateInput(const sf::Vector2i& mousePos);
-	int CountAliveCells() const;
+	void render(sf::RenderTarget& target);
+	void update();
+	void updateInput(const sf::Vector2i& mousePos);
+	int countAliveCells() const;
 
 	// Getters
-	const std::vector < std::vector < bool > >& GetLifeCells() const { return lifeCells; }
-	const sf::Vector2f GetPosition() const { return pos; }
-	const int GetWidth() const { return width; }
-	const int GetHeight() const { return width; }
+	const std::vector < std::vector < bool > >& getLifeCells() const { return m_liveCells; }
+	const sf::Vector2f getPosition() const { return m_pos; }
+	const int getWidth() const { return m_width; }
+	const int getHeight() const { return m_width; }
 
 private:
-	// Functions
-	void CopyState();
+	void copyState();
 
 private:
 	class Cell
@@ -36,37 +35,37 @@ private:
 		Cell(const sf::Vector2f& pos, float size, bool isAlive);
 
 		// Functions
-		void Revive();
-		void Kill();
-		int CountAliveNeighbors(const Board& board) const;
-		void Render(sf::RenderTarget& target);
-		void Update(const Board& board);
+		void revive();
+		void kill();
+		int countAliveNeighbors(const Board& board) const;
+		void render(sf::RenderTarget& target);
+		void update(const Board& board);
 
 		// Getters
-		bool IsAlive() const { return isAlive; }
+		bool isAlive() const { return m_isAlive; }
 
 	private:
-		sf::RectangleShape cell;
-		bool isAlive = false;
+		sf::RectangleShape m_cell;
+		bool m_isAlive = false;
 
-		float size;
+		float m_size;
 	};
 
 private:
 	// Border
-	sf::RectangleShape border;
+	sf::RectangleShape m_border;
 
 	// Board
-	std::vector < std::vector< Cell> > cells;
-	sf::Vector2f pos;
-	float cellSize;
-	int width;
-	int height;
+	std::vector < std::vector< Cell> > m_cells;
+	sf::Vector2f m_pos;
+	float m_cellSize;
+	int m_width;
+	int m_height;
 
 	// Logic
-	std::vector < std::vector<bool > > lifeCells;
+	std::vector < std::vector<bool > > m_liveCells;
 
 	// Constants
-	static constexpr float borderSize = 2.0f;
+	static constexpr float s_borderSize = 2.0f;
 };
 

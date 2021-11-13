@@ -3,32 +3,34 @@
 
 Board::Cell::Cell(const sf::Vector2f& pos, float size, bool isAlive)
 	:
-	size(size),
-	isAlive(isAlive)
+	m_size{ size },
+	m_isAlive{ isAlive }
 {
-	cell.setPosition(pos);
-	cell.setSize({ size, size });
-	cell.setOutlineThickness(-1.0f);
-	cell.setFillColor(sf::Color::White);
-	cell.setOutlineColor(sf::Color::Black);
+	m_cell.setPosition(pos);
+	m_cell.setSize({ size, size });
+	m_cell.setOutlineThickness(-1.0f);
+	m_cell.setFillColor(sf::Color::White);
+	m_cell.setOutlineColor(sf::Color::Black);
 }
 
-void Board::Cell::Revive()
+void Board::Cell::revive()
 {
-	isAlive = true;
+	m_isAlive = true;
 }
 
-void Board::Cell::Kill()
+void Board::Cell::kill()
 {
-	isAlive = false;
+	m_isAlive = false;
 }
 
-int Board::Cell::CountAliveNeighbors(const Board& board) const
+int Board::Cell::countAliveNeighbors(const Board& board) const
 {
-	const sf::Vector2f pos = cell.getPosition();
-	const sf::Vector2i indexPos = static_cast<sf::Vector2i>((pos - board.GetPosition()) / size);
-	const int boardWidth = board.GetWidth();
-	const int boardHeight = board.GetHeight();
+	const sf::Vector2f pos = m_cell.getPosition();
+	const sf::Vector2i indexPos = static_cast<sf::Vector2i>(
+		(pos - board.getPosition()) / m_size
+	);
+	const int boardWidth = board.getWidth();
+	const int boardHeight = board.getHeight();
 	int n = 0;
 
 	for (int i = indexPos.x - 1; i <= indexPos.x + 1; ++i)
@@ -39,7 +41,7 @@ int Board::Cell::CountAliveNeighbors(const Board& board) const
 			{
 				if (i >= 0 && i < boardWidth && j >= 0 && j < boardHeight)
 				{
-					if (board.lifeCells[i][j] == true)
+					if (board.m_liveCells[i][j] == true)
 					{
 						n++;
 					}
@@ -51,48 +53,49 @@ int Board::Cell::CountAliveNeighbors(const Board& board) const
 	return n;
 }
 
-void Board::Cell::Render(sf::RenderTarget& target)
+void Board::Cell::render(sf::RenderTarget& target)
 {
-	if (isAlive)
+	if (m_isAlive)
 	{
-		target.draw(cell);
+		target.draw(m_cell);
 	}
 }
 
-void Board::Cell::Update(const Board& board)
+void Board::Cell::update(const Board& board)
 {
-	const int numNeighbors = CountAliveNeighbors(board);
-	if (isAlive)
+	const int numNeighbors = countAliveNeighbors(board);
+	if (m_isAlive)
 	{
 		if (numNeighbors != 2 && numNeighbors != 3)
 		{
-			isAlive = false;
+			kill();
 		}
 	}
 	else
 	{
 		if (numNeighbors == 3)
 		{
-			isAlive = true;
+			revive();
 		}
 	}
 }
 
-Board::Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated)
+Board::Board(const sf::Vector2f& pos, 
+	float cellSize, int width, int height, bool randomGenerated)
 	:
-	pos(pos),
-	cellSize(cellSize),
-	width(width),
-	height(height),
-	cells(width, std::vector<Cell>(height, Cell())),
-	lifeCells(width, std::vector<bool>(height, false))
+	m_pos{ pos },
+	m_cellSize{ cellSize },
+	m_width{ width },
+	m_height{ height },
+	m_cells{ width, std::vector<Cell>(height, Cell()) },
+	m_liveCells{ width, std::vector<bool>(height, false) }
 {
 
-	border.setPosition(pos);
-	border.setSize(sf::Vector2f(cellSize * width, cellSize * height));
-	border.setFillColor(sf::Color::Transparent);
-	border.setOutlineThickness(borderSize);
-	border.setOutlineColor(sf::Color(120, 120, 120));
+	m_border.setPosition(pos);
+	m_border.setSize(sf::Vector2f(cellSize * width, cellSize * height));
+	m_border.setFillColor(sf::Color::Transparent);
+	m_border.setOutlineThickness(s_borderSize);
+	m_border.setOutlineColor(sf::Color(120, 120, 120));
 
 	if (randomGenerated)
 	{
@@ -105,7 +108,9 @@ Board::Board(const sf::Vector2f& pos, float cellSize, int width, int height, boo
 			for (int j = 0; j < height; ++j)
 			{
 				const int val = randomizer(random);
-				cells[i][j] = Cell(sf::Vector2f(pos.x + i * cellSize, pos.y + j * cellSize), cellSize, val);
+				m_cells[i][j] = Cell(
+					{ pos.x + i * cellSize, pos.y + j * cellSize }, cellSize, val
+				);
 			}
 		}
 	}
@@ -115,78 +120,88 @@ Board::Board(const sf::Vector2f& pos, float cellSize, int width, int height, boo
 		{
 			for (int j = 0; j < height; ++j)
 			{
-				cells[i][j] = Cell(sf::Vector2f(pos.x + i * cellSize, pos.y + j * cellSize), cellSize, false);
+				m_cells[i][j] = Cell(
+					{ pos.x + i * cellSize, pos.y + j * cellSize }, cellSize, false
+				);
 			}
 		}
 	}
 	
 }
 
-void Board::Render(sf::RenderTarget& target)
+void Board::render(sf::RenderTarget& target)
 {
-	target.draw(border);
+	target.draw(m_border);
 
-	for (auto& cell : cells)
+	for (auto& cell : m_cells)
 	{
 		for (auto& cel : cell)
 		{
-			cel.Render(target);
+			cel.render(target);
 		}
 	}
 }
 
-void Board::Update()
+void Board::update()
 {
-	CopyState();
-	for (auto& cell : cells)
+	copyState();
+	for (auto& cell : m_cells)
 	{
 		for (auto& cel : cell)
 		{
-			cel.Update(*this);
+			cel.update(*this);
 		}
 	}
 }
 
-void Board::UpdateInput(const sf::Vector2i& mousePos)
+void Board::updateInput(const sf::Vector2i& mousePos)
 {
-	const sf::FloatRect boardBounds = sf::FloatRect(25.0f, 25.0f,  width * cellSize, height * cellSize);
-	const sf::Vector2i gridPos = sf::Vector2i(int((mousePos.x - pos.x)/ cellSize), int((mousePos.y - pos.y) / cellSize));
+	const sf::FloatRect boardBounds = sf::FloatRect(
+		25.0f, 25.0f,  m_width * m_cellSize, m_height * m_cellSize
+	);
+	const sf::Vector2i gridPos = sf::Vector2i(
+		static_cast<int>((mousePos.x - m_pos.x)/ m_cellSize), 
+		static_cast<int>((mousePos.y - m_pos.y) / m_cellSize)
+	);
 
 	if (boardBounds.contains(static_cast<sf::Vector2f>(mousePos)))
 	{
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			cells[gridPos.x][gridPos.y].Revive();
+			m_cells[gridPos.x][gridPos.y].revive();
 		}
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			cells[gridPos.x][gridPos.y].Kill();
+			m_cells[gridPos.x][gridPos.y].kill();
 		}
 	}
 	
 }
 
-int Board::CountAliveCells() const
+int Board::countAliveCells() const
 {
 	int n = 0;
-	for (auto lCells : lifeCells)
+	for (auto lCells : m_liveCells)
 	{
 		for (auto lc : lCells)
 		{
-			if (lc) n++;
+			if (lc)
+			{
+				n++;
+			}
 		}
 	}
 	return n;
 }
 
-void Board::CopyState()
+void Board::copyState()
 {
-	for (int i = 0; i < width; ++i)
+	for (int i = 0; i < m_width; ++i)
 	{
-		for (int j = 0; j < height; ++j)
+		for (int j = 0; j < m_height; ++j)
 		{
-			lifeCells[i][j] = cells[i][j].IsAlive();
+			m_liveCells[i][j] = m_cells[i][j].isAlive();
 		}
 	}
 }

@@ -3,93 +3,95 @@
 #include <iostream>
 
 Application::Application()
-    :
-    e(),
-    settings()
 {
     // Load settings
-    LoadSettings();
+    loadSettings();
 
     // Load font
-    if (!font.loadFromFile("Fonts/Roboto-Light.ttf"))
+    if (!m_font.loadFromFile("Fonts/Roboto-Light.ttf"))
     {
         sf::err() << "Failed to load font";
     }
-
+                                                                               
     // Create board
-    board = std::make_unique<Board>(sf::Vector2f(25.0f, 25.0f), settings.cellSize, settings.boardWidth, settings.boardHeight, settings.randomGenerated);
+    m_board = std::make_unique<Board>(
+        sf::Vector2f(25.0f, 25.0f), 
+        m_settings.cellSize, m_settings.boardWidth, m_settings.boardHeight, 
+        m_settings.randomGenerated
+    );
 
     // Create window
-    const float offsetX = settings.cellSize * settings.boardWidth + 50.0f;
-    screenWidth = int(offsetX + 200.0f);
-    screenHeight = int(settings.cellSize * settings.boardHeight + 50.0f);
-    window = std::make_unique< sf::RenderWindow>(sf::VideoMode(screenWidth, screenHeight), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
+    const float offsetX = m_settings.cellSize * m_settings.boardWidth + 50.0f;
+    m_screenWidth = int(offsetX + 200.0f);
+    m_screenHeight = int(m_settings.cellSize * m_settings.boardHeight + 50.0f);
+    m_window = std::make_unique< sf::RenderWindow>(
+        sf::VideoMode(m_screenWidth, m_screenHeight), 
+        "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close
+    );
 
     // Simple UI
-    infoText.setFont(font);
-    infoText.setCharacterSize(20);
-    infoText.setFillColor(sf::Color::White);
-    infoText.setPosition(offsetX + 10.0f, 50.0f);
-    infoText.setString("Generation: 0\n\nPopulation: 0");
+    m_infoText.setFont(m_font);
+    m_infoText.setCharacterSize(20);
+    m_infoText.setFillColor(sf::Color::White);
+    m_infoText.setPosition(offsetX + 10.0f, 50.0f);
+    m_infoText.setString("Generation: 0\n\nPopulation: 0");
 }
 
-void Application::UpdateEvents()
+void Application::updateEvents()
 {
-    while (window->pollEvent(e))
+    while (m_window->pollEvent(m_event))
     {
-        if (e.type == sf::Event::Closed)
-            running = false;
+        if (m_event.type == sf::Event::Closed)
+            m_running = false;
     }
 }
 
-void Application::Update()
+void Application::update()
 {
-    const float dt = dtClock.restart().asSeconds();
-    const sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+    const float dt = m_dtClock.restart().asSeconds();
+    const sf::Vector2i mousePos = sf::Mouse::getPosition(*m_window);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
     {
-        start = true;
+        m_start = true;
     }
 
-    if (!start)
+    if (!m_start)
     {
-        if (!settings.randomGenerated)
+        if (!m_settings.randomGenerated)
         {
-            board->UpdateInput(mousePos);
+            m_board->updateInput(mousePos);
         }
     }
     else
     {
-        timer += dt;
+        m_timer += dt;
 
-        if (timer >= settings.timeStep)
+        if (m_timer >= m_settings.timeStep)
         {
-            board->Update();
-            ++generation;
-            timer = 0.0f;
+            m_board->update();
+            ++m_generation;
+            m_timer = 0.0f;
         }
 
-        infoText.setString("Generation: " + std::to_string(generation) + "\n\nPopulation: " + std::to_string(board->CountAliveCells()));
+        m_infoText.setString(
+            "Generation: " + std::to_string(m_generation) + 
+            "\n\nPopulation: " + std::to_string(m_board->countAliveCells())
+        );
     }
 }
 
-void Application::Render()
+void Application::render()
 {
-    window->clear();
-    // Render things here
-    board->Render(*window);
-    window->draw(infoText);
-    //
-    window->display();
+    m_window->clear();
+
+    m_board->render(*m_window);
+    m_window->draw(m_infoText);
+    
+    m_window->display();
 }
 
-bool Application::IsRunning() const
-{
-    return running;
-}
-
-void Application::LoadSettings()
+void Application::loadSettings()
 {
     std::ifstream in("Config/settings.ini");
 
@@ -103,23 +105,23 @@ void Application::LoadSettings()
         {
             if (s == "# Cell size")
             {
-                in >> settings.cellSize;
+                in >> m_settings.cellSize;
             }
             if (s == "# Board width")
             {
-                in >> settings.boardWidth;
+                in >> m_settings.boardWidth;
             }
             if (s == "# Board height")
             {
-                in >> settings.boardHeight;
+                in >> m_settings.boardHeight;
             }
             if (s == "# Initial patron random (1 yes, 0 not)")
             {
-                in >> settings.randomGenerated;
+                in >> m_settings.randomGenerated;
             }
             if (s == "# Time step")
             {
-                in >> settings.timeStep;
+                in >> m_settings.timeStep;
             }
         }
     }

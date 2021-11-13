@@ -6,31 +6,6 @@
 class Application
 {
 public:
-	Application();
-
-	void UpdateEvents();
-	void Update();
-	void Render();
-
-	bool IsRunning() const;
-	// User functions here
-
-private:
-	void LoadSettings();
-	//
-
-
-private:
-	std::unique_ptr<sf::RenderWindow> window;
-	sf::Event e;
-
-	bool running = true;
-	sf::Clock dtClock;
-
-	int screenWidth;
-	int screenHeight;
-
-	// User variables here
 	struct Settings
 	{
 		float cellSize;
@@ -40,12 +15,37 @@ private:
 		float timeStep;
 	};
 
-	Settings settings;
-	std::unique_ptr<Board> board;
-	sf::Font font;
-	sf::Text infoText;
-	bool start = false;
-	float timer = 0.0f;
-	int generation = 0;
-	//
+public:
+	Application();
+
+	void updateEvents();
+	void update();
+	void render();
+
+	bool isRunning() const { return m_running; }
+
+private:
+	void loadSettings();
+
+
+private:
+	std::unique_ptr<sf::RenderWindow> m_window{};
+	std::unique_ptr<Board> m_board{};
+	sf::Event m_event{};
+	sf::Clock m_dtClock{};
+
+	bool m_running{ true };
+	bool m_start{ false };
+	float m_timer{ 0.0f };
+	int m_generation{ 0 };
+
+	int m_screenWidth{};
+	int m_screenHeight{};
+
+	Settings m_settings{};
+	
+	sf::Font m_font{};
+	sf::Text m_infoText{};
+	
+	
 };
