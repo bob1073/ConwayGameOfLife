@@ -9,7 +9,8 @@ public:
 	// Constructors
 	Board() = default;
 	
-	Board(const sf::Vector2f& pos, float cellSize, int width, int height, bool randomGenerated);
+	Board(const sf::Vector2f& pos, 
+		float cellSize, int width, int height, bool randomGenerated);
 
 	// Functions
 	void render(sf::RenderTarget& target);
@@ -45,27 +46,27 @@ private:
 		bool isAlive() const { return m_isAlive; }
 
 	private:
-		sf::RectangleShape m_cell;
-		bool m_isAlive = false;
+		sf::RectangleShape m_cell{};
+		bool m_isAlive{ false };
 
-		float m_size;
+		float m_size{};
 	};
 
 private:
 	// Border
-	sf::RectangleShape m_border;
+	sf::RectangleShape m_border{};
 
 	// Board
-	std::vector < std::vector< Cell> > m_cells;
-	sf::Vector2f m_pos;
-	float m_cellSize;
-	int m_width;
-	int m_height;
+	std::vector < std::vector< Cell> > m_cells{};
+	sf::Vector2f m_pos{};
+	float m_cellSize{};
+	int m_width{};
+	int m_height{};
 
 	// Logic
-	std::vector < std::vector<bool > > m_liveCells;
+	std::vector < std::vector<bool > > m_liveCells{};
 
 	// Constants
-	static constexpr float s_borderSize = 2.0f;
+	static constexpr float s_borderSize{ 2.0f };
 };
 
